@@ -1,16 +1,13 @@
-package com.example.BlogApp.models;
+package com.example.BlogApp.requests;
 
 import lombok.Data;
 
-import java.util.Random;
-
 @Data
-public class Blog {
-    private int id=new Random().nextInt(1,Integer.MAX_VALUE);
+public class BlogRequest {
     private String categoria;
     private String titolo;
     private String cover;
     private String contenuto;
     private int tempoDiLettura;
-    private Persona persona;
+    private int personaId;
 }

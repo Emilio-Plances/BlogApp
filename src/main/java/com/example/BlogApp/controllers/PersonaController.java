@@ -1,14 +1,15 @@
 package com.example.BlogApp.controllers;
 
 import com.example.BlogApp.exceptions.NotFoundException;
-import com.example.BlogApp.models.Persona;
+import com.example.BlogApp.requests.PersonaRequest;
+import com.example.BlogApp.responses.DefaultResponse;
 import com.example.BlogApp.services.PersonaService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("api/persone")
@@ -16,44 +17,51 @@ public class PersonaController  {
     @Autowired
     private PersonaService personaService;
     @GetMapping
-    @ResponseStatus(HttpStatus.OK)
-    public List<Persona> getAll(){
-        return personaService.getListaPersone();
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<Persona> getById(@PathVariable int id){
-        try {
-            Persona p = personaService.findById(id);
-            return new ResponseEntity<Persona>(p, HttpStatus.OK);
+    public ResponseEntity<DefaultResponse> getAll(Pageable pageable){
+        try{
+            return DefaultResponse.successNoMessage(personaService.getAll(pageable), HttpStatus.OK);
+        }catch(Exception e){
+            return DefaultResponse.errorNoMessage(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        catch (NotFoundException ex){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<DefaultResponse> getById(@PathVariable int id){
+        try {
+            return DefaultResponse.successCustomMessage("Persona trovata!",personaService.findById(id),HttpStatus.OK);
+        } catch (NotFoundException e) {
+            return DefaultResponse.errorCustomMessage("Persona non trovata!",HttpStatus.NOT_FOUND);
+        }catch (Exception e){
+            return DefaultResponse.errorNoMessage(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     @PostMapping
-    public ResponseEntity<Persona> save(@RequestBody Persona persona){
-        Persona p=personaService.add(persona);
-        return new ResponseEntity<>(p,HttpStatus.CREATED);
+    public ResponseEntity<DefaultResponse> add(@RequestBody PersonaRequest p){
+        try{
+            return DefaultResponse.successCustomMessage("Persona creata!",personaService.add(p),HttpStatus.CREATED);
+        }catch(Exception e){
+            return DefaultResponse.errorNoMessage(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
     @PutMapping("/{id}")
-    public ResponseEntity<Persona> putUpdate(@PathVariable int id, @RequestBody Persona persona){
-        try {
-            Persona p=personaService.update(id,persona);
-            return new ResponseEntity<>(p,HttpStatus.OK);
-        }
-        catch (NotFoundException ex){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    public ResponseEntity<DefaultResponse> update(@PathVariable int id,@RequestBody PersonaRequest p){
+        try{
+            return DefaultResponse.successCustomMessage("Persona aggiornata!",personaService.update(id,p),HttpStatus.OK);
+        }catch (NotFoundException e) {
+            return DefaultResponse.errorCustomMessage("Persona non trovata!",HttpStatus.NOT_FOUND);
+        }catch(Exception e){
+            return DefaultResponse.errorNoMessage(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     @DeleteMapping("/{id}")
-    public ResponseEntity<Persona> delete(@PathVariable int id){
-        try {
+    public ResponseEntity<DefaultResponse> delete(@PathVariable int id){
+        try{
+            String message="Persona con id="+id+" eliminata";
             personaService.delete(id);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        catch (NotFoundException ex){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return DefaultResponse.voidSuccess(message,HttpStatus.OK);
+        }catch (NotFoundException e) {
+            return DefaultResponse.errorCustomMessage("Persona non trovata!",HttpStatus.NOT_FOUND);
+        }catch(Exception e){
+            return DefaultResponse.errorNoMessage(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

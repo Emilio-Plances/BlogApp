@@ -1,38 +1,44 @@
 package com.example.BlogApp.services;
 
 import com.example.BlogApp.exceptions.NotFoundException;
-import com.example.BlogApp.models.Persona;
+import com.example.BlogApp.entities.Persona;
+import com.example.BlogApp.repositories.PersonaRepository;
+import com.example.BlogApp.requests.PersonaRequest;
 import lombok.Getter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 @Service
 @Getter
 public class PersonaService {
-    private List<Persona> listaPersone=new ArrayList<>();
-
-    public Persona add(Persona p){
-        p.setAvatar("https://ui-avatars.com/api/?name="+p.getNome()+"+"+p.getCognome());
-        listaPersone.add(p);
-        return p;
+    @Autowired
+    private PersonaRepository personaRepository;
+    public Persona add(PersonaRequest persona){
+        Persona p=new Persona();
+        return personaRepository.save(copy(persona,p));
+    }
+    public Page<Persona> getAll(Pageable pageable){
+        return personaRepository.findAll(pageable);
     }
     public Persona findById(int id) throws NotFoundException{
-        Optional<Persona> p=listaPersone.stream().filter(el->el.getId()==id).findFirst();
-        if(p.isPresent()) return p.get();
-        throw new NotFoundException("Persona non trovata!");
+        return personaRepository.findById(id).orElseThrow(()->new NotFoundException("Nessuna persona trovata con id="+id));
     }
-    public Persona update(int id, Persona persona)throws NotFoundException {
+    public Persona update(int id, PersonaRequest persona)throws NotFoundException {
         Persona p=findById(id);
+        return personaRepository.save(copy(persona,p));
+    }
+    public void delete(int id)throws NotFoundException{
+        Persona p=findById(id);
+        personaRepository.delete(p);
+    }
+    private Persona copy(PersonaRequest persona,Persona p){
         p.setNome(persona.getNome());
         p.setCognome(persona.getCognome());
         p.setEmail(persona.getEmail());
-        p.setAvatar(persona.getAvatar());
         p.setDataNascita(persona.getDataNascita());
+        p.setAvatar("https://ui-avatars.com/api/?name="+p.getNome()+"+"+p.getCognome());
         return p;
-    }
-    public void delete(int id)throws NotFoundException{
-        listaPersone.remove(findById(id));
     }
 }
