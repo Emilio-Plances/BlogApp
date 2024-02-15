@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -41,13 +42,13 @@ public class PersonaController  {
     }
     @PostMapping
     public ResponseEntity<DefaultResponse> add(@RequestBody @Validated PersonaRequest p, BindingResult bR){
-        if(bR.hasErrors()) throw new BadRequestException(bR.getAllErrors().toString());
+        if(bR.hasErrors()) throw new BadRequestException(bR.getAllErrors().stream().map(ObjectError::getObjectName).toList().toString());
         sendEmail(p.getEmail());
         return DefaultResponse.successCustomMessage("Persona creata!",personaService.add(p),HttpStatus.CREATED);
     }
     @PutMapping("/{id}")
     public ResponseEntity<DefaultResponse> update(@PathVariable int id,@RequestBody @Validated PersonaRequest p,BindingResult bR) throws NotFoundException {
-        if(bR.hasErrors()) throw new BadRequestException(bR.getAllErrors().toString());
+        if(bR.hasErrors()) throw new BadRequestException(bR.getAllErrors().stream().map(ObjectError::getObjectName).toList().toString());
         return DefaultResponse.successCustomMessage("Persona aggiornata!",personaService.update(id,p),HttpStatus.OK);
     }
     @DeleteMapping("/{id}")

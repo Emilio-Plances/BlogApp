@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,12 +30,12 @@ public class BlogController {
     }
     @PostMapping
     public ResponseEntity<DefaultResponse> add(@RequestBody @Validated BlogRequest b, BindingResult bR) throws NotFoundException {
-        if (bR.hasErrors()) throw new BadRequestException(bR.getAllErrors().toString());
+        if(bR.hasErrors()) throw new BadRequestException(bR.getAllErrors().stream().map(ObjectError::getObjectName).toList().toString());
         return DefaultResponse.successCustomMessage("Blog creata!",blogService.add(b),HttpStatus.CREATED);
     }
     @PutMapping("/{id}")
     public ResponseEntity<DefaultResponse> update(@PathVariable int id,@RequestBody @Validated BlogRequest b,BindingResult bR) throws NotFoundException {
-        if(bR.hasErrors()) throw new BadRequestException(bR.getAllErrors().toString());
+        if(bR.hasErrors()) throw new BadRequestException(bR.getAllErrors().stream().map(ObjectError::getObjectName).toList().toString());
         return DefaultResponse.successCustomMessage("Blog aggiornato!",blogService.update(id,b),HttpStatus.OK);
     }
     @DeleteMapping("/{id}")
