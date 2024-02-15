@@ -1,5 +1,7 @@
 package com.example.BlogApp.controllers;
 
+import com.cloudinary.Cloudinary;
+import com.example.BlogApp.entities.Blog;
 import com.example.BlogApp.exceptions.BadRequestException;
 import com.example.BlogApp.exceptions.NotFoundException;
 import com.example.BlogApp.requests.BlogRequest;
@@ -13,13 +15,18 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 @RestController
 @RequestMapping("/api/blog")
 public class BlogController {
     @Autowired
     private BlogService blogService;
+    @Autowired
+    private Cloudinary cloudinary;
     @GetMapping
     public ResponseEntity<DefaultResponse> getAll(Pageable pageable){
         return DefaultResponse.successNoMessage(blogService.getAll(pageable), HttpStatus.OK);
@@ -43,5 +50,11 @@ public class BlogController {
         String message="Blog con id="+id+" eliminato";
         blogService.delete(id);
         return DefaultResponse.voidSuccess(message,HttpStatus.OK);
+    }
+    @PatchMapping("/{id}")
+    public ResponseEntity<DefaultResponse> uploadCover(@PathVariable int id, @RequestParam("upload") MultipartFile file) throws IOException, NotFoundException {
+        String s= (String) cloudinary.uploader().upload(file.getBytes(),new HashMap()).get("url");
+        Blog b=blogService.setCover(id,s);
+        return DefaultResponse.successCustomMessage("Cover aggiornata!",b, HttpStatus.OK);
     }
 }

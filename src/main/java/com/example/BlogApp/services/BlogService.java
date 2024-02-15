@@ -43,7 +43,11 @@ public class BlogService {
         b.setCategoria(blog.getCategoria());
         b.setContenuto(blog.getContenuto());
         b.setTempoDiLettura(blog.getTempoDiLettura());
-        b.setCover(blog.getCover());
+        return b;
+    }
+    public Blog setCover(int id,String url) throws NotFoundException {
+        Blog b=findById(id);
+        b.setCover(url);
         return b;
     }
 }

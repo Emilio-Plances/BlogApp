@@ -58,7 +58,7 @@ public class PersonaController  {
         return DefaultResponse.voidSuccess(message,HttpStatus.OK);
     }
     @PatchMapping("/{id}")
-    public ResponseEntity<DefaultResponse> uploadLogo(@PathVariable int id,@RequestParam("upload") MultipartFile file) throws IOException, NotFoundException {
+    public ResponseEntity<DefaultResponse> upload(@PathVariable int id,@RequestParam("upload") MultipartFile file) throws IOException, NotFoundException {
         String url=(String) cloudinary.uploader().upload(file.getBytes(),new HashMap()).get("url");
         Persona p=personaService.uploadAvatar(id,url);
         return DefaultResponse.successCustomMessage("Immagine caricata",p,HttpStatus.OK);
