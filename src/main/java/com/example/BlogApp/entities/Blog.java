@@ -14,8 +14,7 @@ public class Blog {
     private String titolo;
     private String cover;
     private String contenuto;
-    @Column(name="tempo_di_lettura")
-    private int tempoDiLettura;
+    private Integer tempoDiLettura;
     @ManyToOne
     @JoinColumn(name="persona_fk")
     private Persona persona;

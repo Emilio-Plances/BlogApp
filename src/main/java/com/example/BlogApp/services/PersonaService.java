@@ -38,7 +38,12 @@ public class PersonaService {
         p.setCognome(persona.getCognome());
         p.setEmail(persona.getEmail());
         p.setDataNascita(persona.getDataNascita());
-        p.setAvatar("https://ui-avatars.com/api/?name="+p.getNome()+"+"+p.getCognome());
         return p;
     }
+    public Persona uploadAvatar(int id,String url) throws NotFoundException {
+        Persona p=findById(id);
+        p.setAvatar(url);
+        return personaRepository.save(p);
+    }
+
 }

@@ -16,8 +16,8 @@ public class Persona {
     private int id;
     private String nome;
     private String cognome;
+    @Column(unique = true)
     private String email;
-    @Column(name = "data_nascita")
     private LocalDate dataNascita;
     private String avatar;
     @JsonIgnore
